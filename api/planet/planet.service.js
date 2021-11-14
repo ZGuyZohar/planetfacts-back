@@ -4,29 +4,19 @@ const asyncLocalStorage = require('../../services/als.service')
 
 
 
-async function query(isMinimized) {
+async function query(isOrigin) {
     try {
+        const criteria = isOrigin ? { "isOriginal": "true" } : {}
+        console.log(criteria, 'criteria');
         const collection = await dbService.getCollection('planet')
-        let planets = await collection.find().toArray();
-        // if (isMinimized) {
-        //     miniPlanets = planets.map(planet => {
-        //         return {
-        //             _id: planet._id,
-        //             title: planet.title,
-        //             styles: planet.styles,
-        //             isStarred: planet.isStarred
-        //         }
-        //     });
-        //     return miniPlanets;
-        // }
-        console.log(planets, 'planets from query')
+        let planets = await collection.find(criteria).toArray();
+        console.log(planets.length, 'planets from query')
         return planets
     } catch (err) {
         logger.error('cannot find planets', err)
         throw err
     }
 }
-
 
 async function remove(planetId) {
     try {
@@ -74,12 +64,20 @@ async function add(planet) {
     }
 }
 
+async function getOriginPlanets() {
+    console.log('lala');
+    const res = await query(true)
+    console.log(res, 'res is');
+    return res
+}
+
 module.exports = {
     query,
     remove,
     add,
     getById,
-    update
+    update,
+    getOriginPlanets
 }
 
 

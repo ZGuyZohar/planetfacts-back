@@ -4,12 +4,24 @@ const planetService = require('./planet.service')
 
 async function getPlanets(req, res) {
     try {
-        const isMinimized = req.query;
+        
+        const isMinimized = Object.keys(req.query).length ? req.query : null
+        console.log(isMinimized, 'isminimized');
         const planets = await planetService.query(isMinimized)
         res.send(planets)
     } catch (err) {
         logger.error('Cannot get planets', err)
         res.status(500).send({ err: 'Failed to get planets' })
+    }
+}
+
+async function getOriginPlanets(req, res) {
+    try {
+        const planets = await planetService.getOriginPlanets()
+        res.json(planets)
+    } catch(err){
+        logger.error('Failed to get original planets', err)
+        res.status(500).send({err: 'Failed to get original planets'})
     }
 }
 
@@ -25,13 +37,6 @@ async function getPlanet(req, res) {
 
 async function deletePlanet(req, res) {
     try {
-        if (
-            (req.params.id === '6062231855c6426f8c7ab2e1' ||
-                req.params.id === '60632833f0c8d3001556781b' ||
-                req.params.id === '606212907ad16945f0800c7f')
-            && !req.session.user.isAdmin) {
-            throw new Error('not eligable');
-        }
         await planetService.remove(req.params.id)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
@@ -68,6 +73,6 @@ module.exports = {
     getPlanet,
     deletePlanet,
     addPlanet,
-    updatePlanet
-
+    updatePlanet,
+    getOriginPlanets
 }
